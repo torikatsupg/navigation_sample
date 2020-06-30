@@ -1,4 +1,5 @@
 import 'package:blocsample/bloc.dart';
+import 'package:blocsample/screens.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -46,9 +47,9 @@ class ScreensState extends State<Screens> {
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         return Scaffold(
           appBar: AppBar(
-            title: Text('Stream Test'),
+            title: Text('Stream Test')
           ),
-          body: Text(snapshot?.data.toString()),
+          body: _screens(snapshot.data),
           bottomNavigationBar: BottomNavigationBar(
             items: [
               BottomNavigationBarItem(
@@ -69,6 +70,16 @@ class ScreensState extends State<Screens> {
         );
       },
     );
+  }
+  
+  Widget _screens(int index) {
+    switch(index) {
+      case 0: return ScreenA();
+      case 1: return ScreenB();
+      case 2: return ScreenC();
+      default: return Text('null');
+      
+    }
   }
 
   void _onTap(int index) {
