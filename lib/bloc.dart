@@ -21,17 +21,3 @@ class Bloc {
   }
 }
 
-class BlocProvider extends InheritedWidget {
-  BlocProvider({Key key, Widget child}) : super(key: key, child: child);
-
-  Bloc get bloc => Bloc();
-
-  @override
-  bool updateShouldNotify(InheritedWidget oldWidget) {
-    return false;
-  }
-
-  static BlocProvider of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<BlocProvider>();
-  }
-}

@@ -15,35 +15,20 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Screens(),
+      home: BlocProvider(
+          child: Screens(),
+      ),
     );
   }
 }
 
-class Screens extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => ScreensState();
-}
-
-class ScreensState extends State<Screens> {
-  Bloc _bloc;
-
-  @override
-  void initState() {
-    super.initState();
-    _bloc = Bloc();
-  }
-
-  @override
-  void dispose() {
-    _bloc.dispose();
-    super.dispose();
-  }
+class Screens extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bloc = BlocProvider.of(context).bloc;
     return StreamBuilder<int>(
-      stream: _bloc.onAdd,
+      stream: bloc.onAdd,
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         return Scaffold(
           appBar: AppBar(
@@ -65,7 +50,7 @@ class ScreensState extends State<Screens> {
                 title: Text('ScreenC'),
               ),
             ],
-            onTap: (index) => _onTap(index),
+            onTap: (index) => _onTap(bloc, index),
           ),
         );
       },
@@ -78,12 +63,25 @@ class ScreensState extends State<Screens> {
       case 1: return ScreenB();
       case 2: return ScreenC();
       default: return Text('null');
-      
     }
   }
 
-  void _onTap(int index) {
-    _bloc.pick(index);
+  void _onTap(Bloc bloc, int index) {
+    bloc.pick(index);
   }
 }
 
+class BlocProvider extends InheritedWidget {
+  BlocProvider({Key key, Widget child}) : super(key: key, child: child);
+
+  Bloc get bloc => Bloc();
+
+  @override
+  bool updateShouldNotify(InheritedWidget oldWidget) {
+    return false;
+  }
+
+  static BlocProvider of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<BlocProvider>();
+  }
+}
