@@ -1,6 +1,7 @@
 import 'package:blocsample/bloc.dart';
 import 'package:blocsample/screens.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,75 +16,102 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Screens(),
+      home: Provider<Bloc>(
+        create: (_) => Bloc(),
+        dispose: (_, bloc) => bloc.dispose(),
+        child: Screens(),
+      ),
     );
   }
 }
 
-class Screens extends StatefulWidget {
+class Screens extends StatelessWidget {
   @override
-  State<StatefulWidget> createState() => ScreensState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Stream Test'),
+      ),
+      body: _Screen(),
+      bottomNavigationBar: _Navigation(),
+    );
+  }
 }
 
-class ScreensState extends State<Screens> {
-  Bloc _bloc;
-
-  @override
-  void initState() {
-    super.initState();
-    _bloc = Bloc();
-  }
-
-  @override
-  void dispose() {
-    _bloc.dispose();
-    super.dispose();
-  }
+class _Screen extends StatelessWidget {
+  const _Screen({Key key}) : super();
 
   @override
   Widget build(BuildContext context) {
+    final bloc = Provider.of<Bloc>(context);
     return StreamBuilder<int>(
-      stream: _bloc.onAdd,
-      builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text('Stream Test')
-          ),
-          body: _screens(snapshot.data),
-          bottomNavigationBar: BottomNavigationBar(
-            items: [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.add),
-                title: Text('ScreenA'),
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.add),
-                title: Text('ScreenB'),
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.add),
-                title: Text('ScreenC'),
-              ),
-            ],
-            onTap: (index) => _onTap(index),
-          ),
-        );
-      },
+      stream: bloc.onAdd,
+      builder: _screens,
     );
   }
-  
-  Widget _screens(int index) {
-    switch(index) {
-      case 0: return ScreenA();
-      case 1: return ScreenB();
-      case 2: return ScreenC();
-      default: return Text('null');
-      
+
+  Widget _screens(BuildContext context, AsyncSnapshot<int> snapshot) {
+    switch (snapshot.data) {
+      case 0:
+        return ScreenA();
+      case 1:
+        return ScreenB();
+      case 2:
+        return ScreenC();
+      default:
+        return Text('null');
     }
   }
+}
 
-  void _onTap(int index) {
-    _bloc.pick(index);
+class _Navigation extends StatelessWidget {
+  const _Navigation({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = Provider.of<Bloc>(context);
+    return BottomNavigationBar(
+      items: [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.add),
+          title: Text('ScreenA'),
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.add),
+          title: Text('ScreenB'),
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.add),
+          title: Text('ScreenC'),
+        ),
+      ],
+      onTap: (index) => _onTap(index, bloc),
+    );
+  }
+
+  void _onTap(int index, Bloc bloc) {
+    bloc.pick(index);
+  }
+}
+
+class BlocProvider extends InheritedWidget {
+  BlocProvider({Key key, Widget child}) : super(key: key, child: child);
+
+  Bloc _bloc;
+  Bloc get bloc  {
+    if (_bloc == null) {
+      _bloc = Bloc();
+    }
+    return _bloc;
+  }
+
+  @override
+  bool updateShouldNotify(InheritedWidget oldWidget) {
+    return false;
+  }
+
+  static BlocProvider of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<BlocProvider>();
   }
 }
 
