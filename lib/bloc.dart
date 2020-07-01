@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 
 class Bloc {
+  Bloc() {
+    print('bloc is created');
+  }
   final _inputController = StreamController<int>();
   final _outputController = StreamController<int>();
 
