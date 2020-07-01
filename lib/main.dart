@@ -1,6 +1,7 @@
 import 'package:blocsample/bloc.dart';
 import 'package:blocsample/screens.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,8 +16,10 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: BlocProvider(
-          child: Screens(),
+      home: Provider<Bloc>(
+        create: (_) => Bloc(),
+        dispose: (_, bloc) => bloc.dispose(),
+        child: Screens(),
       ),
     );
   }
@@ -40,7 +43,7 @@ class _Screen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = BlocProvider.of(context).bloc;
+    final bloc = Provider.of<Bloc>(context);
     return StreamBuilder<int>(
       stream: bloc.onAdd,
       builder: _screens,
@@ -66,7 +69,7 @@ class _Navigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = BlocProvider.of(context).bloc;
+    final bloc = Provider.of<Bloc>(context);
     return BottomNavigationBar(
       items: [
         BottomNavigationBarItem(
@@ -111,3 +114,4 @@ class BlocProvider extends InheritedWidget {
     return context.dependOnInheritedWidgetOfExactType<BlocProvider>();
   }
 }
+
